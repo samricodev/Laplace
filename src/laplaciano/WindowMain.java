@@ -79,7 +79,7 @@ public class WindowMain extends JFrame {
         // Buttons
         // Button UpLoad
         btnUpload = new JButton("Upload");
-        btnUpload.setBounds(220, 50, 80, 20);
+        btnUpload.setBounds(120, 50, 80, 20);
         btnUpload.addActionListener(e -> {
             try {
                 upLoadImage();
@@ -89,11 +89,11 @@ public class WindowMain extends JFrame {
         });
         add(btnUpload);
 
-        btnSend = new JButton("Send image");
-        btnSend.setBounds(120, 50, 80, 20);
+        btnSend = new JButton("View");
+        btnSend.setBounds(220, 50, 80, 20);
         btnSend.addActionListener(e -> {
             try {
-                sendImage(u1);
+                view();
             } catch (RemoteException ex) {
                 Logger.getLogger(WindowMain.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -127,24 +127,43 @@ public class WindowMain extends JFrame {
         // Button Clear
         btnClear = new JButton("Clear");
         btnClear.setBounds(550, 500, 100, 30);
-        btnClear.addActionListener(e -> clear());
+        btnClear.addActionListener(e -> {
+            try {
+                clear();
+            } catch (RemoteException ex) {
+                Logger.getLogger(WindowMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
         add(btnClear);
 
     }
 
     public void sendImage(String url) throws RemoteException {
         server.sendImage(url);
-        // if (this.u1 != null && this.u2 != null) {
-        // this.u1 = url;
-        // this.u2 = "";
-        // }
+    }
 
-        // if (this.u1 != null) {
-        // this.u2 = url;
-        // return;
-        // }
+    public void view() throws RemoteException {
+        String imagen1Path = server.getA();
+        String imagen2Path = server.getB();
+        String imagenUnidaPath = "src/dualimages/imagenUnida.jpg";
 
-        // this.u1 = url;
+        try {
+            BufferedImage imagen1 = ImageIO.read(new File(imagen1Path));
+            BufferedImage imagen2 = ImageIO.read(new File(imagen2Path));
+            int anchoImagenUnida = imagen1.getWidth() + imagen2.getWidth();
+            int altoImagenUnida = Math.max(imagen1.getHeight(), imagen2.getHeight());
+            BufferedImage imagenUnida = new BufferedImage(anchoImagenUnida, altoImagenUnida, BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = imagenUnida.createGraphics();
+            g2d.drawImage(imagen1, 0, 0, null);
+            g2d.drawImage(imagen2, imagen1.getWidth(), 0, null);
+            g2d.dispose();
+            ImageIO.write(imagenUnida, "jpg", new File(imagenUnidaPath));
+            System.out.println("Las imágenes se han unido correctamente.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ImageIcon image = new ImageIcon("src/dualimages/imagenUnida.jpg");
+        originalImg.setIcon(new ImageIcon(image.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH)));
     }
 
     // ActionListener Methods
@@ -153,43 +172,12 @@ public class WindowMain extends JFrame {
         // get path of the project
         String path = System.getProperty("user.dir");
         System.out.println(path);
-        chooser.setCurrentDirectory(new File(path + "/src/images"));
+        chooser.setCurrentDirectory(new File(path + "/src/dualimages"));
         // chooser.setCurrentDirectory(new File("src/images"));
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             sendImage(chooser.getSelectedFile().getAbsolutePath());
             System.out.println(chooser.getSelectedFile().getAbsolutePath());
-
         }
-        // chooser = new JFileChooser();
-        // chooser.setCurrentDirectory(new File("/src/dualimages"));
-        // int returnVal = chooser.showOpenDialog(this);
-        // if (returnVal == JFileChooser.APPROVE_OPTION) {
-        // sendImage("src/dualimages/" + chooser.getSelectedFile().getName());
-        // String imagen1Path = u1;
-        // String imagen2Path = u2;
-        // String imagenUnidaPath = "src/dualimages/imagenUnida.jpg";
-
-        // try {
-        // BufferedImage imagen1 = ImageIO.read(new File(imagen1Path));
-        // BufferedImage imagen2 = ImageIO.read(new File(imagen2Path));
-        // int anchoImagenUnida = imagen1.getWidth() + imagen2.getWidth();
-        // int altoImagenUnida = Math.max(imagen1.getHeight(), imagen2.getHeight());
-        // BufferedImage imagenUnida = new BufferedImage(anchoImagenUnida,
-        // altoImagenUnida,
-        // BufferedImage.TYPE_INT_RGB);
-        // Graphics2D g2d = imagenUnida.createGraphics();
-        // g2d.drawImage(imagen1, 0, 0, null);
-        // g2d.drawImage(imagen2, imagen1.getWidth(), 0, null);
-        // g2d.dispose();
-        // ImageIO.write(imagenUnida, "jpg", new File(imagenUnidaPath));
-        // System.out.println("Las imágenes se han unido correctamente.");
-        // } catch (IOException e) {
-        // e.printStackTrace();
-        // }
-        // ImageIcon image = new ImageIcon("src/dualimages/imagenUnida.jpg");
-        // originalImg.setIcon(new ImageIcon(image.getImage().getScaledInstance(300,
-        // 300, Image.SCALE_SMOOTH)));
-        // }
     }
 
     public void funcSequential() {
@@ -262,7 +250,7 @@ public class WindowMain extends JFrame {
         modifiedImg.setIcon(new ImageIcon(imgM.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH)));
     }
 
-    public void clear() {
+    public void clear() throws RemoteException {
         timeSeq.setText(null);
         timeFork.setText(null);
         timeExec.setText(null);
@@ -272,5 +260,6 @@ public class WindowMain extends JFrame {
         File unida = new File("src/dualimages/imagenUnida.jpg");
         unida.delete();
         fileImage.delete();
+        server.clean();
     }
 }

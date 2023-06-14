@@ -12,4 +12,7 @@ public interface Laplacianos extends Remote{
     void funcFork() throws RemoteException;
     void funcExec() throws RemoteException, InterruptedException, IOException;
     void clear() throws RemoteException;
+    String getA() throws RemoteException;
+    String getB() throws RemoteException;
+    void clean() throws RemoteException;
 }
