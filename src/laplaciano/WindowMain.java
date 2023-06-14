@@ -5,8 +5,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.concurrent.ExecutorService;
@@ -175,8 +173,8 @@ public class WindowMain extends JFrame {
         chooser.setCurrentDirectory(new File(path + "/src/dualimages"));
         // chooser.setCurrentDirectory(new File("src/images"));
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            sendImage(chooser.getSelectedFile().getAbsolutePath());
-            System.out.println(chooser.getSelectedFile().getAbsolutePath());
+            sendImage("src/dualimages/"+chooser.getSelectedFile().getName());
+            System.out.println(chooser.getSelectedFile().getName());
         }
     }
 
