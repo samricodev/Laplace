@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
-public class LaplacianosImpl extends UnicastRemoteObject implements laplacianos{
+public class LaplacianosImpl extends UnicastRemoteObject implements Laplacianos{
     
     String u1, u2;
     

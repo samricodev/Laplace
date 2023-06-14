@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.concurrent.ExecutorService;
@@ -23,10 +25,12 @@ public class WindowMain extends JFrame {
     JFileChooser chooser;
     Laplace laplacian;
     String u1 = "", u2 = "";
+    Laplacianos server;
 
-    public WindowMain(laplacianos server) {
+    public WindowMain(Laplacianos server) {
+        this.server = server;
 
-        //Window
+        // Window
         setLayout(null);
         setSize(700, 600);
         setResizable(false);
@@ -34,10 +38,10 @@ public class WindowMain extends JFrame {
         setBackground(Color.lightGray);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
-        //Components
+        // Components
         laplacian = new Laplace();
 
-        //Top
+        // Top
         title = new JLabel("Filtro Laplaciano");
         title.setBounds(300, 5, 200, 20);
         add(title);
@@ -46,7 +50,7 @@ public class WindowMain extends JFrame {
         upload.setBounds(20, 50, 100, 20);
         add(upload);
 
-        //Center
+        // Center
         originalImg = new JLabel();
         originalImg.setBounds(10, 150, 300, 300);
         add(originalImg);
@@ -55,7 +59,7 @@ public class WindowMain extends JFrame {
         modifiedImg.setBounds(375, 150, 300, 300);
         add(modifiedImg);
 
-        //Execution times
+        // Execution times
         times = new JLabel("Times: ");
         times.setBounds(10, 100, 50, 30);
         add(times);
@@ -72,8 +76,8 @@ public class WindowMain extends JFrame {
         timeExec.setBounds(400, 100, 150, 30);
         add(timeExec);
 
-        //Buttons
-        //Button UpLoad
+        // Buttons
+        // Button UpLoad
         btnUpload = new JButton("Upload");
         btnUpload.setBounds(220, 50, 80, 20);
         btnUpload.addActionListener(e -> {
@@ -96,19 +100,19 @@ public class WindowMain extends JFrame {
         });
         add(btnSend);
 
-        //Button Sequential
+        // Button Sequential
         btnSequential = new JButton("Sequential");
         btnSequential.setBounds(20, 500, 100, 30);
         btnSequential.addActionListener(e -> funcSequential());
         add(btnSequential);
 
-        //Button ForkJoin
+        // Button ForkJoin
         btnForkJoin = new JButton("ForkJoin");
         btnForkJoin.setBounds(200, 500, 100, 30);
         btnForkJoin.addActionListener(e -> funcFork());
         add(btnForkJoin);
 
-        //Button Executor
+        // Button Executor
         btnExecutor = new JButton("Executor");
         btnExecutor.setBounds(400, 500, 100, 30);
         btnExecutor.addActionListener(e -> {
@@ -120,7 +124,7 @@ public class WindowMain extends JFrame {
         });
         add(btnExecutor);
 
-        //Button Clear
+        // Button Clear
         btnClear = new JButton("Clear");
         btnClear.setBounds(550, 500, 100, 30);
         btnClear.addActionListener(e -> clear());
@@ -129,49 +133,63 @@ public class WindowMain extends JFrame {
     }
 
     public void sendImage(String url) throws RemoteException {
-        if (this.u1 != null && this.u2 != null) {
-            this.u1 = url;
-            this.u2 = "";
-        }
+        server.sendImage(url);
+        // if (this.u1 != null && this.u2 != null) {
+        // this.u1 = url;
+        // this.u2 = "";
+        // }
 
-        if (this.u1 != null) {
-            this.u2 = url;
-            return;
-        }
+        // if (this.u1 != null) {
+        // this.u2 = url;
+        // return;
+        // }
 
-        this.u1 = url;
+        // this.u1 = url;
     }
 
-    //ActionListener Methods
+    // ActionListener Methods
     public void upLoadImage() throws RemoteException {
-        chooser = new JFileChooser();
-        chooser.setCurrentDirectory(new File("/src/dualimages"));
-        int returnVal = chooser.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            sendImage("src/dualimages/" + chooser.getSelectedFile().getName());
-            String imagen1Path = u1;
-            String imagen2Path = u2;
-            String imagenUnidaPath = "src/dualimages/imagenUnida.jpg";
+        JFileChooser chooser = new JFileChooser();
+        // get path of the project
+        String path = System.getProperty("user.dir");
+        System.out.println(path);
+        chooser.setCurrentDirectory(new File(path + "/src/images"));
+        // chooser.setCurrentDirectory(new File("src/images"));
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            sendImage(chooser.getSelectedFile().getAbsolutePath());
+            System.out.println(chooser.getSelectedFile().getAbsolutePath());
 
-            try {
-                BufferedImage imagen1 = ImageIO.read(new File(imagen1Path));
-                BufferedImage imagen2 = ImageIO.read(new File(imagen2Path));
-                int anchoImagenUnida = imagen1.getWidth() + imagen2.getWidth();
-                int altoImagenUnida = Math.max(imagen1.getHeight(), imagen2.getHeight());
-                BufferedImage imagenUnida = new BufferedImage(anchoImagenUnida, altoImagenUnida, BufferedImage.TYPE_INT_RGB);
-                Graphics2D g2d = imagenUnida.createGraphics();
-                g2d.drawImage(imagen1, 0, 0, null);
-                g2d.drawImage(imagen2, imagen1.getWidth(), 0, null);
-                g2d.dispose();
-                ImageIO.write(imagenUnida, "jpg", new File(imagenUnidaPath));
-                System.out.println("Las imágenes se han unido correctamente.");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            ImageIcon image = new ImageIcon("src/dualimages/imagenUnida.jpg");
-            originalImg.setIcon(new ImageIcon(image.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH)));
         }
+        // chooser = new JFileChooser();
+        // chooser.setCurrentDirectory(new File("/src/dualimages"));
+        // int returnVal = chooser.showOpenDialog(this);
+        // if (returnVal == JFileChooser.APPROVE_OPTION) {
+        // sendImage("src/dualimages/" + chooser.getSelectedFile().getName());
+        // String imagen1Path = u1;
+        // String imagen2Path = u2;
+        // String imagenUnidaPath = "src/dualimages/imagenUnida.jpg";
 
+        // try {
+        // BufferedImage imagen1 = ImageIO.read(new File(imagen1Path));
+        // BufferedImage imagen2 = ImageIO.read(new File(imagen2Path));
+        // int anchoImagenUnida = imagen1.getWidth() + imagen2.getWidth();
+        // int altoImagenUnida = Math.max(imagen1.getHeight(), imagen2.getHeight());
+        // BufferedImage imagenUnida = new BufferedImage(anchoImagenUnida,
+        // altoImagenUnida,
+        // BufferedImage.TYPE_INT_RGB);
+        // Graphics2D g2d = imagenUnida.createGraphics();
+        // g2d.drawImage(imagen1, 0, 0, null);
+        // g2d.drawImage(imagen2, imagen1.getWidth(), 0, null);
+        // g2d.dispose();
+        // ImageIO.write(imagenUnida, "jpg", new File(imagenUnidaPath));
+        // System.out.println("Las imágenes se han unido correctamente.");
+        // } catch (IOException e) {
+        // e.printStackTrace();
+        // }
+        // ImageIcon image = new ImageIcon("src/dualimages/imagenUnida.jpg");
+        // originalImg.setIcon(new ImageIcon(image.getImage().getScaledInstance(300,
+        // 300, Image.SCALE_SMOOTH)));
+        // }
     }
 
     public void funcSequential() {
@@ -192,9 +210,11 @@ public class WindowMain extends JFrame {
         try {
             String url = "src/dualimages/imagenUnida.jpg";
             BufferedImage imageFork = ImageIO.read(new File(url));
-            BufferedImage filteredImageFork = new BufferedImage(imageFork.getWidth(), imageFork.getHeight(), BufferedImage.TYPE_INT_RGB);
+            BufferedImage filteredImageFork = new BufferedImage(imageFork.getWidth(), imageFork.getHeight(),
+                    BufferedImage.TYPE_INT_RGB);
             ForkJoinPool forkJoinPool = new ForkJoinPool(2);
-            LaplaceForkJoin task = new LaplaceForkJoin(imageFork, filteredImageFork, 1, imageFork.getWidth() - 1, 1, imageFork.getHeight() - 1);
+            LaplaceForkJoin task = new LaplaceForkJoin(imageFork, filteredImageFork, 1, imageFork.getWidth() - 1, 1,
+                    imageFork.getHeight() - 1);
             long inicio = System.currentTimeMillis();
             forkJoinPool.invoke(task);
             long fin = System.currentTimeMillis();
@@ -211,7 +231,8 @@ public class WindowMain extends JFrame {
     public void funcExec() throws IOException, InterruptedException {
         String url = "src/dualimages/imagenUnida.jpg";
         BufferedImage image = ImageIO.read(new File(url));
-        BufferedImage filteredImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage filteredImage = new BufferedImage(image.getWidth(), image.getHeight(),
+                BufferedImage.TYPE_INT_RGB);
         // Crear ExecutorService con el número de núcleos del procesador
         ExecutorService executorService = Executors.newFixedThreadPool(4);
         // Crear un conjunto de tareas y enviarlas a ExecutorService
@@ -236,7 +257,7 @@ public class WindowMain extends JFrame {
         File archivoSalida = new File("src/dualimages/newImage.jpg");
         ImageIO.write(filteredImage, "jpg", archivoSalida);
 
-        //Asignarla al label
+        // Asignarla al label
         ImageIcon imgM = new ImageIcon("src/dualimages/newImage.jpg");
         modifiedImg.setIcon(new ImageIcon(imgM.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH)));
     }
