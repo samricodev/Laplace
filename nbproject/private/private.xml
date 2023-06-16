@@ -3,10 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/srico/programacion/Paralela/FiltroLaplacianoRMI/src/laplaciano/LaplaceExecutor.java</file>
             <file>file:/C:/Users/srico/programacion/Paralela/FiltroLaplacianoRMI/src/laplaciano/ClienteRMI.java</file>
             <file>file:/C:/Users/srico/programacion/Paralela/FiltroLaplacianoRMI/src/laplaciano/ServidorRMI.java</file>
             <file>file:/C:/Users/srico/programacion/Paralela/FiltroLaplacianoRMI/src/laplaciano/WindowMain.java</file>
-            <file>file:/C:/Users/srico/programacion/Paralela/FiltroLaplacianoRMI/src/laplaciano/Laplacianos.java</file>
+            <file>file:/C:/Users/srico/programacion/Paralela/FiltroLaplacianoRMI/src/laplaciano/LaplaceForkJoin.java</file>
+            <file>file:/C:/Users/srico/programacion/Paralela/FiltroLaplacianoRMI/src/laplaciano/Laplace.java</file>
         </group>
     </open-files>
 </project-private>
